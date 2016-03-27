@@ -149,6 +149,7 @@ def main(train_file, test_file, out_file):
     lr = AmazonAccess(train_file, test_file, out_file)
     lr.logistic_regression()
 
+
 if __name__ == '__main__':
     train_file = "./data/train.csv"
     test_file = "./data/test.csv"

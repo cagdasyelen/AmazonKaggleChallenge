@@ -66,5 +66,5 @@ class XgBase:
         df_out = pd.DataFrame()
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
-        df_out.to_csv('./data/c2_stacking_result.csv',index=False)
+        df_out.to_csv('./data/results/c2_stacking_result.csv',index=False)
 
