@@ -10,17 +10,8 @@ class Xgboost:
     def __init__(self,K,dirName):
         self.K = K
         self.load_data_from_dir(dirName)
-        '''
-        best_maxdepth, best_nestimators, best_colsamplebytree = \
-                            self.get_best_params()
-        '''
         self.xgb_model = xgb.XGBClassifier()
         self.classifier = self.cross_validator()
-        '''
-        self.classifier = xgb.XGBClassifier(max_depth=best_maxdepth, \
-                                        n_estimators=best_nestimators, \
-                                        colsample_bytree=best_colsamplebytree)
-        '''
         self.train()
         self.predict()
 
@@ -55,11 +46,6 @@ class Xgboost:
         self.train_X = train[0::,1::]
         self.train_Y = train[0::,0]
         self.test_X = df_test.values[0::,1::]
-        # Engineer the features in both train and test data - ONE HOT ENCODING
-        '''
-        self.train_X, self.test_X = \
-                            self.engineer_all_features(self.train_X,self.test_X)
-        '''
         self.test_ID = df_test.values[0::,0]
 
 
@@ -70,15 +56,24 @@ class Xgboost:
         # Get all the features in the original set
         feature_set = df.columns.values[3:-1]
         # Add the [frequency of resources handled by manager of the resources]
-        table = df.pivot_table(index=['MGR_ID'], \
-                                columns=['RESOURCE'], values=['UNITY'], \
-                                    aggfunc = np.sum, fill_value = 0).sum(1)
-        new_col = table[df['MGR_ID']]
+        if isTrain:
+            self.table_res = df.pivot_table(index=['MGR_ID'], \
+                                    columns=['RESOURCE'], values=['UNITY'], \
+                                        aggfunc = np.sum, fill_value = 0).sum(1)
+            new_col = table[df['MGR_ID']]
+        else:
+            new_col = []
+            for mgr in df['MGR_ID']:
+                if mgr in self.table_res.index:
+                    new_col.append(self.table_res[mgr])
+                else:
+                    new_col.append(0)
+
         df['MGR_RES'] = np.expand_dims(new_col,axis=1)
 
         # Add the [number of accepted resources by the manager]
         if isTrain:
-            self.table_rec = df.pivot_table(index=['MGR_ID'], \
+            self.table_accepted_res = df.pivot_table(index=['MGR_ID'], \
                                     columns=['UNITY'], values=['ACTION'], \
                                         aggfunc = np.sum, fill_value = 0).sum(1)
             ''' @Note that (column,value) = (Unity,Action) === (Resource,Action)'''
@@ -86,8 +81,8 @@ class Xgboost:
         else:
             new_col = []
             for mgr in df['MGR_ID']:
-                if mgr in self.table_rec.index:
-                    new_col.append(self.table_rec[mgr])
+                if mgr in self.table_accepted_res.index:
+                    new_col.append(self.table_accepted_res[mgr])
                 else:
                     new_col.append(0)
 
@@ -152,67 +147,6 @@ class Xgboost:
         df.drop('UNITY',axis=1,inplace=True)
 
         return df
-
-
-
-
-    def engineer_all_features(self, train, test):
-        num_features = train.shape[1]
-        train_new = []
-        test_new = []
-
-        for j in np.arange(0,num_features):
-            train_sparse,test_sparse = self.engineer_feature(\
-                                            train[0::,j], test[0::,j])
-
-            train_new.append(train_sparse)
-            test_new.append(test_sparse)
-
-        # append the sparse matrix
-        train_new = hstack(train_new).tocsr()
-        test_new = hstack(test_new).tocsr()
-        return (train_new, test_new)
-
-    def engineer_feature(self, train_col, test_col):
-        new_feature_col_train = np.zeros(train_col.shape)
-        new_feature_col_test = np.zeros(test_col.shape)
-        dictionary = {}
-        num_keys_found = 0
-
-        # Create the dictionary
-        for row in train_col:
-            if not dictionary.has_key(row):
-                dictionary[row] = num_keys_found
-                num_keys_found += 1
-
-        # Update the columns for train
-        for i in np.arange(0, train_col.size):
-            new_feature_col_train[i] = dictionary[train_col[i]]
-
-        # Update the columns for test
-        for i in np.arange(0, test_col.size):
-            if(dictionary.has_key(test_col[i])):
-                new_feature_col_test[i] = dictionary[test_col[i]]
-            else:
-                new_feature_col_test[i] = num_keys_found
-
-        # create a sparse matrix of feature vectors - train
-        row = np.arange(0,train_col.size)
-        col = new_feature_col_train
-        data = np.ones(train_col.size)
-
-        sparse_feature_train = csr_matrix((data, (row,col)), \
-                                shape=(train_col.size,len(dictionary) + 1))
-
-        # create a sparse matrix of feature vectors - test
-        row = np.arange(0,test_col.size)
-        col = new_feature_col_test
-        data = np.ones(test_col.size)
-
-        sparse_feature_test = csr_matrix((data, (row,col)), \
-                                shape=(test_col.size,len(dictionary) + 1))
-
-        return (sparse_feature_train, sparse_feature_test)
 
     def train(self):
         self.classifier.fit(self.train_X, self.train_Y)
