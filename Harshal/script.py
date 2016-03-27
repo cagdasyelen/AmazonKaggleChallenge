@@ -23,9 +23,11 @@ def main():
 
     # 1. Logistic Regressor - balanced - Sparse Greedy Features
     print 'Beginning Logistic Regression ...'
+    stupid_train_out_file = './data/results/lr_unbalanced_sparse_train.csv'
     out_file = './data/ensemble_results/lr_unbalanced_sparse.csv'
-    clf = LogRes(train_file, test_file, out_file)
-    clf.logistic_regression()
+
+    clf = LogRes(train_file, test_file, stupid_train_out_file, out_file)
+    clf.feature_selection(64, [3])
     print 'Logstic Regression Completed. Labels saved. Moving Forward.'
 
     # 2. Random Forest - Entropy Index
@@ -38,6 +40,7 @@ def main():
     forest.store_classification_result(out_file)
     print 'Random Forest Classfication Completed. Labels saved. Moving Forward.'
 
+    '''
     # 3. Random Forest - Gini Index
     print 'Beginning Random Forest Classfication (GINI BASED) ...'
     out_file = './data/ensemble_results/rf_gini.csv'
@@ -67,6 +70,7 @@ def main():
     print "Train Accuracy Extra Trees (Gini):%f \n" %(train_acc)
     trees.store_classification_result(out_file)
     print 'Extra Trees (GINI) Completed. Labels saved. Moving Forward.'
+    '''
     
     # 6. Xgboost - Gradient Boosting Machine
     print 'Beginning Extreme Gradient Boosting...'
