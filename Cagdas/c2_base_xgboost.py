@@ -44,16 +44,17 @@ class XgBase:
         self.classifier.fit(self.train_X, self.train_Y)
 
     def predict(self):
-        self.test_Y = self.classifier.predict_proba(self.train_X)
+        self.test_Y = self.classifier.predict_proba(self.test_X)
 
     def get_training_accuracy(self):
         return (self.classifier.score(self.train_X, self.train_Y))
 
     def store_result(self):
         df_out = pd.DataFrame()
+        self.test_ID=self.test_ID.astype(int)
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
-        df_out.to_csv('./data/results/result_default_set_training.csv',index=False)
+        df_out.to_csv('./data/results/c2_base_result.csv',index=False)
 
 
 

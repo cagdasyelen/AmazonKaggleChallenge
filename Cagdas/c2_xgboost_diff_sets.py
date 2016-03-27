@@ -10,6 +10,7 @@ from sklearn.cross_validation import *
 # Set1: ['ACTION','MGR_ACCEPT_FRAC_ROLE_TITLE', 'MGR_ACCEPT_FRAC_ROLE_FAMILY_DESC', 'RESOURCE'] -> 0.49412
 # Set2: ['ACTION','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME'] -> 0.54799
 # Set3: ['ACTION','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME', 'ROLE_CODE', 'ROLE_FAMILY'] -> 0.59543
+# Set4: Original + MGR_RES + MGR_ACCEPT_RES
 
 
 class XgBase:
@@ -25,8 +26,8 @@ class XgBase:
         test_csv = './data/test_with_feat.csv'
         df_train = pd.read_csv(train_csv, header=0)
         df_test =pd.read_csv(test_csv, header=0)
-        df_train = df_train[['ACTION','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME', 'ROLE_CODE', 'ROLE_FAMILY']]
-        df_test = df_test[['id','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME', 'ROLE_CODE', 'ROLE_FAMILY']]
+        df_train = df_train[['ACTION','RESOURCE','MGR_ID','ROLE_ROLLUP_1','ROLE_ROLLUP_2','ROLE_DEPTNAME','ROLE_TITLE','ROLE_FAMILY_DESC','ROLE_FAMILY','ROLE_CODE','MGR_RES' , 'MGR_ACCEPTED_RES']]
+        df_test = df_test[['id','RESOURCE','MGR_ID','ROLE_ROLLUP_1','ROLE_ROLLUP_2','ROLE_DEPTNAME','ROLE_TITLE','ROLE_FAMILY_DESC','ROLE_FAMILY','ROLE_CODE','MGR_RES' , 'MGR_ACCEPTED_RES']]
         df_test = pd.read_csv(test_csv, header=0)
         arr_train = df_train.values
         arr_test = df_test.values
@@ -62,7 +63,7 @@ class XgBase:
         self.test_ID=self.test_ID.astype(int)
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
-        df_out.to_csv('./data/results/result_set3.csv',index=False)
+        df_out.to_csv('./data/results/result_set4.csv',index=False)
 
 
 
