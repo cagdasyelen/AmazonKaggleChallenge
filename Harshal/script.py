@@ -21,8 +21,7 @@ def main():
     test_file = 'data/test.csv'
     dataDir = 'data'
 
-    # 1. Logistic Regressor - Unbalanced - Sparse Greedy Features
-    '''
+    # 1. Logistic Regressor - balanced - Sparse Greedy Features
     print 'Beginning Logistic Regression ...'
     out_file = './data/ensemble_results/lr_unbalanced_sparse.csv'
     clf = LogRes(train_file, test_file, out_file)
@@ -38,7 +37,7 @@ def main():
     print "Train Accuracy Random Forest (Entropy):%f \n" %(train_acc)
     forest.store_classification_result(out_file)
     print 'Random Forest Classfication Completed. Labels saved. Moving Forward.'
-    '''
+
     # 3. Random Forest - Gini Index
     print 'Beginning Random Forest Classfication (GINI BASED) ...'
     out_file = './data/ensemble_results/rf_gini.csv'
@@ -68,7 +67,7 @@ def main():
     print "Train Accuracy Extra Trees (Gini):%f \n" %(train_acc)
     trees.store_classification_result(out_file)
     print 'Extra Trees (GINI) Completed. Labels saved. Moving Forward.'
-    '''
+    
     # 6. Xgboost - Gradient Boosting Machine
     print 'Beginning Extreme Gradient Boosting...'
     out_file = './data/ensemble_results/xgboost.csv'
@@ -78,7 +77,7 @@ def main():
     print "Train Accuracy :%f \n" %(train_acc)
     booster.store_classification_result(out_file)
     print 'Extreme Gradient Boosting Completed. Labels saved'
-    '''
+
     print 'All models trained and test labels saved'
     print 'All done... Exiting...'
     print 'Exited'
