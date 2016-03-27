@@ -1,33 +1,31 @@
-import xgboost as xgb
 from sklearn.cross_validation import KFold
 import pandas as pd
 import numpy as np
-from scipy.sparse import csr_matrix,hstack
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import *
 from feature_creator import Feature_Handler
+from sklearn.ensemble import RandomForestClassifier
 
-class Xgboost:
-    def __init__(self,K,dirName):
+class RandomForest:
+    def __init__(self,K,dirName,criterion='entropy'):
         self.K = K
+        self.criterion = criterion
         self.handler = Feature_Handler()
         self.load_data_from_dir(dirName)
-        self.xgb_model = xgb.XGBClassifier()
+        self.rf_model = RandomForestClassifier()
         self.classifier = self.cross_validator()
         self.train()
         self.predict()
 
     def cross_validator(self):
         parameters = {
-            'objective':['binary:logistic'],
-            'max_depth' :[4,6,8,10],
-            'n_estimators' : [300,500,800,1000,1400,2000],
-            'colsample_bytree' : [0.7,0.8,1],
-            'learning_rate' :[0.1],
-            'scale_pos_weight' : [0.2]
+            'n_estimators' : [150,300,500,700,1000],
+            'criterion' : [self.criterion],
+            'max_features': [None,'auto', 'sqrt', 'log2'],
+            'class_weight' : ['balanced']
         }
 
-        clf = GridSearchCV(self.xgb_model,parameters, n_jobs=4,\
+        clf = GridSearchCV(self.rf_model,parameters, n_jobs=4,\
             cv=StratifiedKFold(self.train_Y, n_folds=self.K, shuffle=True), \
             verbose=1, refit=True)
 
