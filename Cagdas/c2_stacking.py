@@ -18,26 +18,27 @@ class XgBase:
     def load_data(self):
         train_csv = './data/train.csv'
         test_csv = './data/test.csv'
-        l1_csv = './data/stacking_labels/cagdas_xgb_base.csv'
-        l2_csv = './data/stacking_labels/shobhit_balanced_onehot.csv'
+        t1_csv = './data/stacking/lr_balanced_onehot_training.csv'
+        l1_csv = './data/stacking/lr_balanced_onehot.csv'
         df_train = pd.read_csv(train_csv, header=0)
         df_test = pd.read_csv(test_csv, header=0)
+        df_t1 = pd.read_csv(t1_csv, header=0)
         df_l1 = pd.read_csv(l1_csv, header=0)
-        df_l2 = pd.read_csv(l2_csv, header=0)
         arr_train = df_train.values
         arr_test = df_test.values
+        arr_t1 = df_t1.values
         arr_l1 = df_l1.values
-        arr_l2 = df_l2.values
         self.train_X = arr_train[0::,1::]
         self.train_Y = arr_train[0::, 0]
         self.test_X = arr_test[0::, 1::]
         self.test_ID = arr_test[0::,0]
+        self.t1 = arr_t1[0::,1]
         self.l1 = arr_l1[0::,1]
-        self.l2 = arr_l2[0::,1]
-        self.train_X_added = np.zeros((len(self.train_X), len(self.train_X[0])+2))
+        self.train_X_added = np.zeros((len(self.train_X), len(self.train_X[0])+1))
+        self.test_X_added = np.zeros((len(self.test_X), len(self.test_X[0])+1))
         for i in range(len(self.train_X)):
-            self.train_X_added[i][9] = self.l1[i]
-            self.train_X_added[i][10] = self.l2[i]
+            self.train_X_added[i][9] = self.t1[i]
+            self.test_X_added[i][9] = self.l1[i]
 
 
     def cross_validator(self):
@@ -64,6 +65,7 @@ class XgBase:
 
     def store_result(self):
         df_out = pd.DataFrame()
+        self.test_ID=self.test_ID.astype(int)
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
         df_out.to_csv('./data/results/c2_stacking_result.csv',index=False)
