@@ -38,7 +38,7 @@ def extract_xy_test(test_data, group, degrees=[]):
     X_test_raw = test_data.ix[:, :].values
     if group and (len(degrees) > 0 and X_test_raw.shape[1] >= min(degrees)):
         X_test_raw = add_groupings(X_test_raw, degrees)
-        return X_test_raw
+    return X_test_raw
 
 
 def add_groupings(data, degrees):
