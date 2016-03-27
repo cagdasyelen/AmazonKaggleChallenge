@@ -6,6 +6,7 @@ from scipy.sparse import csr_matrix,hstack
 from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import *
 
+#Stacking using Shobhit's LR results and putting them into xgboost model
 
 class XgBase:
     def __init__(self):
@@ -68,5 +69,5 @@ class XgBase:
         self.test_ID=self.test_ID.astype(int)
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
-        df_out.to_csv('./data/results/c2_stacking_result.csv',index=False)
+        df_out.to_csv('./data/results/stacking_result1hot.csv',index=False)
 
