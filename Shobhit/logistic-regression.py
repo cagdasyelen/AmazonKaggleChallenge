@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import itertools
 from scipy import sparse
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LogisticRegressionCV
@@ -32,7 +31,7 @@ class AmazonAccess(object):
         self.all_colmns = ['RESOURCE', 'MGR_ID', 'ROLE_ROLLUP_1',
                            'ROLE_ROLLUP_2', 'ROLE_DEPTNAME',
                            'ROLE_TITLE', 'ROLE_FAMILY_DESC',
-                           'ROLE_FAMILY', 'ROLE_CODE'
+                           'ROLE_FAMILY'
                            ]
 
     def __read_data(self, filename):
@@ -329,7 +328,7 @@ class AmazonAccess(object):
 
 def main(train_file, test_file, train_out_file, test_out_file):
     lr = AmazonAccess(train_file, test_file, train_out_file, test_out_file)
-    lr.feature_selection(93, [3])
+    lr.feature_selection(64, [3])
     # lr.logistic_regression([2])
 
 if __name__ == '__main__':
