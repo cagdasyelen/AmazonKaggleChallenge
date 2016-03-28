@@ -1,5 +1,5 @@
 from c1_logistic_regression import LogReg
-from c2_stacking import XgBase
+from c2_base_xgboost import XgBase
 
 
 
