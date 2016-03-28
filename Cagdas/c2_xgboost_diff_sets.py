@@ -44,7 +44,7 @@ class XgBase:
             'colsample_bytree' : [0.5,0.7,1]
         }
         clf = GridSearchCV(self.xgb_model,parameters, n_jobs=1,\
-            cv=StratifiedKFold(self.train_Y, n_folds=5, shuffle=True), \
+            cv=StratifiedKFold(self.train_Y, n_folds=7, shuffle=True), \
             verbose=2, refit=True)
 
         return clf
