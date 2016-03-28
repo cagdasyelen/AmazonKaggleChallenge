@@ -7,13 +7,7 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import *
 
 
-# Set1: ['ACTION','MGR_ACCEPT_FRAC_ROLE_TITLE', 'MGR_ACCEPT_FRAC_ROLE_FAMILY_DESC', 'RESOURCE'] -> 0.49412
-# Set2: ['ACTION','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME'] -> 0.54799
-# Set3: ['ACTION','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME', 'ROLE_CODE', 'ROLE_FAMILY'] -> 0.59543
-# Set4: Original + MGR_RES + MGR_ACCEPT_RES
-
-
-class XgBase:
+class XgBoost10:
     def __init__(self):
         self.load_data()
         self.xgb_model = xgb.XGBClassifier()
@@ -22,12 +16,9 @@ class XgBase:
         self.predict()
 
     def load_data(self):
-        train_csv = './data/train_with_feat.csv'
-        test_csv = './data/test_with_feat.csv'
+        train_csv = './data/train.csv'
+        test_csv = './data/test.csv'
         df_train = pd.read_csv(train_csv, header=0)
-        df_test =pd.read_csv(test_csv, header=0)
-        df_train = df_train[['ACTION','RESOURCE','MGR_ID','ROLE_ROLLUP_1','ROLE_ROLLUP_2','ROLE_DEPTNAME','ROLE_TITLE','ROLE_FAMILY_DESC','ROLE_FAMILY','ROLE_CODE','MGR_RES' , 'MGR_ACCEPTED_RES']]
-        df_test = df_test[['id','RESOURCE','MGR_ID','ROLE_ROLLUP_1','ROLE_ROLLUP_2','ROLE_DEPTNAME','ROLE_TITLE','ROLE_FAMILY_DESC','ROLE_FAMILY','ROLE_CODE','MGR_RES' , 'MGR_ACCEPTED_RES']]
         df_test = pd.read_csv(test_csv, header=0)
         arr_train = df_train.values
         arr_test = df_test.values
@@ -40,11 +31,11 @@ class XgBase:
         parameters = {
             'objective':['binary:logistic'],
             'max_depth' :[6,8,10,12],
-            'n_estimators' : [300,500,800,1000,1400],
+            'n_estimators' : [300,500,800,1000,1400,2000],
             'colsample_bytree' : [0.5,0.7,1]
         }
-        clf = GridSearchCV(self.xgb_model,parameters, n_jobs=1,\
-            cv=StratifiedKFold(self.train_Y, n_folds=7, shuffle=True), \
+        clf = GridSearchCV(self.xgb_model,parameters, n_jobs=2,\
+            cv=StratifiedKFold(self.train_Y, n_folds=10, shuffle=True, random_state=0), \
             verbose=2, refit=True)
 
         return clf
@@ -63,7 +54,7 @@ class XgBase:
         self.test_ID=self.test_ID.astype(int)
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
-        df_out.to_csv('./data/results/result_set4.csv',index=False)
+        df_out.to_csv('./data/results/result_10folds.csv',index=False)
 
 
 

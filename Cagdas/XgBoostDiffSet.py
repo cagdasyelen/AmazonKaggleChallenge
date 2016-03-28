@@ -7,7 +7,14 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import *
 
 
-class c2_base_xgboost:
+# Set1: ['ACTION','MGR_ACCEPT_FRAC_ROLE_TITLE', 'MGR_ACCEPT_FRAC_ROLE_FAMILY_DESC', 'RESOURCE'] -> 0.49412
+# Set2: ['ACTION','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME'] -> 0.54799
+# Set3: ['ACTION','MGR_ID', 'ROLE_FAMILY_DESC', 'RESOURCE', 'ROLE_TITLE', 'ROLE_DEPTNAME', 'ROLE_CODE', 'ROLE_FAMILY'] -> 0.59543
+# Set4: Original + MGR_RES + MGR_ACCEPT_RES -> 0.79372
+#Default set :
+
+
+class XgBoostDiffSet:
     def __init__(self):
         self.load_data()
         self.xgb_model = xgb.XGBClassifier()
@@ -19,7 +26,7 @@ class c2_base_xgboost:
         train_csv = './data/train.csv'
         test_csv = './data/test.csv'
         df_train = pd.read_csv(train_csv, header=0)
-        df_test = pd.read_csv(test_csv, header=0)
+        df_test =pd.read_csv(test_csv, header=0)
         arr_train = df_train.values
         arr_test = df_test.values
         self.train_X = arr_train[0::,1::]
@@ -31,11 +38,11 @@ class c2_base_xgboost:
         parameters = {
             'objective':['binary:logistic'],
             'max_depth' :[6,8,10,12],
-            'n_estimators' : [300,500,800,1000,1400],
+            'n_estimators' : [300,500,800,1000,1400,2000],
             'colsample_bytree' : [0.5,0.7,1]
         }
-        clf = GridSearchCV(self.xgb_model,parameters, n_jobs=2,\
-            cv=StratifiedKFold(self.train_Y, n_folds=5, shuffle=True), \
+        clf = GridSearchCV(self.xgb_model,parameters, n_jobs=1,\
+            cv=StratifiedKFold(self.train_Y, n_folds=5, shuffle=True, random_state=0), \
             verbose=2, refit=True)
 
         return clf
@@ -54,7 +61,7 @@ class c2_base_xgboost:
         self.test_ID=self.test_ID.astype(int)
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
-        df_out.to_csv('./data/results/c2_base_result.csv',index=False)
+        df_out.to_csv('./data/results/result_default_set.csv',index=False)
 
 
 
