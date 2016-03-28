@@ -31,11 +31,11 @@ class XgBase:
         parameters = {
             'objective':['binary:logistic'],
             'max_depth' :[6,8,10,12],
-            'n_estimators' : [300,500,800,1000,1400],
+            'n_estimators' : [300,500,800,1000,1400,2000],
             'colsample_bytree' : [0.5,0.7,1]
         }
         clf = GridSearchCV(self.xgb_model,parameters, n_jobs=2,\
-            cv=StratifiedKFold(self.train_Y, n_folds=5, shuffle=True), \
+            cv=StratifiedKFold(self.train_Y, n_folds=10, shuffle=True, random_state=0), \
             verbose=2, refit=True)
 
         return clf
@@ -54,7 +54,7 @@ class XgBase:
         self.test_ID=self.test_ID.astype(int)
         df_out['Id'] = self.test_ID
         df_out['Action'] = self.test_Y[0::,1]
-        df_out.to_csv('./data/results/c2_base_result.csv',index=False)
+        df_out.to_csv('./data/results/result_10folds.csv',index=False)
 
 
 
