@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import glob
+from scipy.stats.stats import pearsonr
+from operator import itemgetter
 
 class Ensembler:
     def __init__(self,label_path, ensemble_save_path):
@@ -65,17 +67,13 @@ class Ensembler:
 
         # Ensembler 2: Weighted averaging based on AUC
         self.average_weighted_auc()
-        '''
-        # Ensembler 3: Simple averaging among the least correlated M model
-        # labels : begins at 2
-        for i in np.arange(2,len(model_csv_list)):
-            self.least_correlated_simple_auc(i)
 
-        # Ensembler 4: Weighted averaging among the least correlated M models :
-        # INCLUDES RANKED WEIGHING
-        for i in np.arange(2,len(model_csv_list)):
-            self.least_correlated_weighted_auc(i)
-        '''
+        # Ensembler 3: Simple averaging among the least correlated M model
+        self.least_correlated_simple_auc(3)
+
+        # Ensembler 4: Weighted averaging among the least correlated M models
+        self.least_correlated_weighted_auc(3)
+
 
     def load_model_test_out_csv(self):
         dataframe_map = {}
@@ -119,11 +117,76 @@ class Ensembler:
         df_weighted_average['Action'] = average_weighted_auc_labels
         self.save_ensembled_labels(df_weighted_average, 'average_weighted_all_auc')
 
-    def least_correlated_simple_auc(self):
-        pass
+    def least_correlated_simple_auc(self,num_models):
+        least_correlated_list = self.find_least_correlated_set(num_models)
+        sum_all_models = np.zeros([58921,1])
+        for model in least_correlated_list:
+            df = self.dataframe_map[model]
+            df_arr = df.values
+            label = df_arr[:,1]
+            label = np.expand_dims(label,axis = 1)
+            sum_all_models += label
 
-    def least_correlated_weighted_auc(self):
-        pass
+        average_auc_labels = sum_all_models/ len(least_correlated_list)
+        df_average = pd.DataFrame()
+        df_average['Id'] = self.dataframe_map[least_correlated_list[0]]['Id']
+        df_average['Action'] = average_auc_labels
+        self.save_ensembled_labels(df_average, 'average_all_auc_least_correlated')
+
+    def find_least_correlated_set(self,n_models):
+        model_pair_uncorrelation_list = []
+        for i in range(0, len(self.model_csv_list) - 1):
+            for j in range(i + 1, len(self.model_csv_list)):
+                df_model_1 = self.dataframe_map[self.model_csv_list[i]]
+                df_model_2 = self.dataframe_map[self.model_csv_list[j]]
+                model_1 = df_model_1.values[:,1]
+                model_2 = df_model_2.values[:,1]
+                uncorrelation_coeff = pearsonr(model_1,model_2)[1]
+                model_pair_uncorrelation_list.append((self.model_csv_list[i],\
+                                                      self.model_csv_list[j],\
+                                                      uncorrelation_coeff))
+
+        # sort the uncorrelation in decreasing order
+        model_pair_uncorrelation_list = sorted(model_pair_uncorrelation_list,\
+                                               key = itemgetter(2),\
+                                               reverse=True)
+
+        # Get best n_models
+        best_models = set()
+        # Add the best model so far
+        for model_1,model_2, uncorr in model_pair_uncorrelation_list:
+            if len(best_models) <= n_models - 2:
+                best_models.add(model_1)
+                best_models.add(model_2)
+            elif len(best_models) == n_models - 1:
+                if model_1 in best_models:
+                    best_models.add(model_2)
+                elif model_2 in best_models:
+                    best_models.add(model_1)
+                else:
+                    best_models.add(model_1)
+            else:
+                break
+
+        return list(best_models)
+
+
+    def least_correlated_weighted_auc(self,n_models):
+        least_correlated_list = self.find_least_correlated_set(n_models)
+        sum_all_models = np.zeros([58921,1])
+        total_rank_sum = 0
+
+        for model in least_correlated_list:
+            label = self.dataframe_map[model].values[:,1]
+            label = np.expand_dims(label,axis = 1)
+            sum_all_models += (label * (self.model_rank[self.model_csv_list.index(model)]))
+            total_rank_sum += self.model_rank[self.model_csv_list.index(model)]
+
+        average_weighted_auc_labels = sum_all_models/ total_rank_sum
+        df_weighted_average = pd.DataFrame()
+        df_weighted_average['Id'] = self.dataframe_map[least_correlated_list[0]]['Id']
+        df_weighted_average['Action'] = average_weighted_auc_labels
+        self.save_ensembled_labels(df_weighted_average, 'average_weighted_all_auc_least_correlated')
 
     def save_ensembled_labels(self,df, ensemble_name):
         save_path = self.ensemble_save_path + '/' + ensemble_name + '.csv'
