@@ -64,11 +64,10 @@ l8_csv = './data/result_with_diff_param1.csv'
 l9_csv = './data/rf_entropy.csv'
 l10_csv = './data/rf_gini.csv'
 
-'''
-
+#majority12.csv	0.90144	0.89497
 l1_csv = './data/01-lr_balanced_onehot_deg3_greedy_9.csv'
 l2_csv = './data/02-lr_balanced_onehot_deg2-3_greedy_7_noROLLUP.csv'
-l3_csv = './data/03-lr_balanced_onehot_deg2-3_top15_noCODE.csv'
+l3_csv = './data/00-neg_bal_mix.csv'
 l4_csv = './data/04-lr_balanced_onehot_deg2-3_greedy_13_noCODE.csv'
 l5_csv = './data/05-lr_balanced_onehot_deg2_greedy_12_noCODE.csv'
 l6_csv = './data/06-lr_balanced_onehot_5feat.csv'
@@ -76,6 +75,41 @@ l7_csv = './data/test_result_xgboost_base_case.csv'
 l8_csv = './data/result_with_diff_param1.csv'
 l9_csv = './data/rf_entropy.csv'
 l10_csv = './data/rf_gini.csv'
+l11_csv = './data/c2_base_result.csv'
+l12_csv = './data/result_default_set.csv'
+
+#majority13.csv	0.90290	0.89603
+
+l1_csv = './data/01-lr_balanced_onehot_deg3_greedy_9.csv'
+l2_csv = './data/02-lr_balanced_onehot_deg2-3_greedy_7_noROLLUP.csv'
+l3_csv = './data/00-neg_bal_mix.csv'
+l4_csv = './data/04-lr_balanced_onehot_deg2-3_greedy_13_noCODE.csv'
+l5_csv = './data/05-lr_balanced_onehot_deg2_greedy_12_noCODE.csv'
+l6_csv = './data/06-lr_balanced_onehot_5feat.csv'
+l7_csv = './data/test_result_xgboost_base_case.csv'
+l8_csv = './data/result_with_diff_param1.csv'
+l9_csv = './data/rf_entropy.csv'
+l10_csv = './data/rf_gini.csv'
+l11_csv = './data/c2_base_result.csv'
+l12_csv = './data/result_default_set.csv'
+l13_csv = './data/-1_lr_balanced_onehot_neg0.99_deg2-3_greedy_49_noCODE.csv'
+
+'''
+
+l1_csv = './data/01-lr_balanced_onehot_deg3_greedy_9.csv'
+l2_csv = './data/02-lr_balanced_onehot_deg2-3_greedy_7_noROLLUP.csv'
+l3_csv = './data/00-neg_bal_mix.csv'
+l4_csv = './data/04-lr_balanced_onehot_deg2-3_greedy_13_noCODE.csv'
+l5_csv = './data/05-lr_balanced_onehot_deg2_greedy_12_noCODE.csv'
+l6_csv = './data/06-lr_balanced_onehot_5feat.csv'
+l7_csv = './data/test_result_xgboost_base_case.csv'
+l8_csv = './data/result_with_diff_param1.csv'
+l9_csv = './data/rf_entropy.csv'
+l10_csv = './data/rf_gini.csv'
+l11_csv = './data/c2_base_result.csv'
+l12_csv = './data/result_default_set.csv'
+l13_csv = './data/-1_lr_balanced_onehot_neg0.99_deg2-3_greedy_49_noCODE.csv'
+l14_csv = './data/result_10folds.csv'
 
 df_l1 = pd.read_csv(l1_csv, header=0)
 df_l2 = pd.read_csv(l2_csv, header=0)
@@ -87,7 +121,10 @@ df_l7 = pd.read_csv(l7_csv, header=0)
 df_l8 = pd.read_csv(l8_csv, header=0)
 df_l9 = pd.read_csv(l9_csv, header=0)
 df_l10 = pd.read_csv(l10_csv, header=0)
-
+df_l11 = pd.read_csv(l11_csv, header=0)
+df_l12 = pd.read_csv(l12_csv, header=0)
+df_l13 = pd.read_csv(l13_csv, header=0)
+df_l14 = pd.read_csv(l14_csv, header=0)
 
 arr_l1 = df_l1.values
 arr_l2 = df_l2.values
@@ -99,6 +136,11 @@ arr_l7 = df_l7.values
 arr_l8 = df_l8.values
 arr_l9 = df_l9.values
 arr_l10 = df_l10.values
+arr_l11 = df_l11.values
+arr_l12 = df_l12.values
+arr_l13 = df_l13.values
+arr_l14 = df_l14.values
+
 
 l1= arr_l1[:,1]
 l2=arr_l2[:,1]
@@ -110,6 +152,10 @@ l7=arr_l7[:,1]
 l8=arr_l8[:,1]
 l9=arr_l9[:,1]
 l10=arr_l10[:,1]
+l11=arr_l11[:,1]
+l12=arr_l12[:,1]
+l13=arr_l13[:,1]
+l14=arr_l14[:,1]
 
 test_ID = arr_l2[:,0]
 l = np.zeros(len(l2))
@@ -118,12 +164,12 @@ l = np.zeros(len(l2))
 
 
 for i in range(len(l)):
-    l[i] = (l1[i] + l2[i]  + l4[i] + l5[i] +l6[i] +l7[i] + l8[i] +l9[i] + l10[i])/9
+    l[i] = (l1[i] + l2[i] + l3[i] + l4[i] + l5[i] +l6[i] +l7[i] + l8[i] +l9[i] + l10[i] + l11[i] + l12[i] +l13[i] + l14[i])/14
 
 
 test_ID = test_ID.astype(int)
 df_out = pd.DataFrame()
 df_out['Id'] = test_ID
 df_out['Action'] = l
-df_out.to_csv('./results/majority9_1.csv',index=False, dtype=int)
+df_out.to_csv('./results/majority14.csv',index=False, dtype=int)
 print 'done'
